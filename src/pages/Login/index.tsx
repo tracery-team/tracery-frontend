@@ -1,30 +1,19 @@
 import { Box, Button, Stack, TextField, Typography } from '@mui/material'
 import { memo, useCallback } from 'react'
-import useLoginState from './state'
+import { SubmitHandler, useForm } from 'react-hook-form'
+
+type LoginFormValues = {
+  login: string
+  password: string
+}
 
 const Login = () => {
-  const { login, password, setLogin, setPassword } = useLoginState()
+  const { register, handleSubmit, formState, reset } =
+    useForm<LoginFormValues>()
 
-  type TextChange = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-
-  const handleLoginChange = useCallback(
-    (event: TextChange) => {
-      const value = event.target.value
-      setLogin(value)
-    },
-    [setLogin],
-  )
-
-  const handlePasswordChange = useCallback(
-    (event: TextChange) => {
-      const value = event.target.value
-      setPassword(value)
-    },
-    [setPassword],
-  )
-
-  const handleLogin = useCallback(() => {
+  const handleLogin: SubmitHandler<LoginFormValues> = useCallback(data => {
     // TODO:
+    console.log(data)
   }, [])
 
   return (
@@ -49,17 +38,21 @@ const Login = () => {
         <Stack spacing={1.5}>
           <TextField
             label="Login"
-            value={login}
-            onChange={handleLoginChange}
+            {...register('login', { required: 'Please, provide your login' })}
             fullWidth
+            error={Boolean(formState.errors.login)}
+            helperText={formState.errors.login?.message}
           />
           <TextField
             label="Password"
-            value={password}
-            onChange={handlePasswordChange}
+            {...register('password', {
+              required: 'Please, provide your password',
+            })}
             fullWidth
+            error={Boolean(formState.errors.password)}
+            helperText={formState.errors.password?.message}
           />
-          <Button onClick={handleLogin}>Login</Button>
+          <Button onClick={handleSubmit(handleLogin)}>Login</Button>
         </Stack>
       </Stack>
     </Box>

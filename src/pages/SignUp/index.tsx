@@ -1,54 +1,43 @@
 import { Box, Button, Stack, TextField, Typography } from '@mui/material'
-import { memo, useCallback, useMemo } from 'react'
-import useSignupState from './state'
-import { useMutation } from '@tanstack/react-query'
-import { signupApi, SignupApiData } from './api'
+import React, { memo, useCallback, useEffect } from 'react'
+import { SubmitHandler, useForm } from 'react-hook-form'
+import { SignUpData, useSignUpAPI } from './api'
+import { extractMessage } from '../../lib'
+import { useNavigate } from 'react-router'
+
+const LOGIN_ROUTE = '/auth/login'
 
 const SignUp = () => {
-  const {
-    nickname,
-    firstName,
-    lastName,
-    email,
-    password,
-    repeatPassword,
+  const { register, handleSubmit, formState, reset } = useForm<SignUpData>()
 
-    setNickname,
-    setFirstName,
-    setLastName,
-    setEmail,
-    setPassword,
-    setRepeatPassword,
-  } = useSignupState()
+  const { mutate, error, isError, isSuccess } = useSignUpAPI()
 
-  type TextChange = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  const navigate = useNavigate()
+  const navigateToLogin = useCallback(() => {
+    navigate(LOGIN_ROUTE)
+  }, [navigate])
 
-  const handleChange = useCallback((handler: (value: string) => void) => {
-    return (event: TextChange) => {
-      const value = event.target.value
-      handler(value)
-    }
-  }, [])
+  useEffect(() => {
+    if (!isSuccess) return
+    reset()
+    navigateToLogin()
+  }, [isSuccess, navigateToLogin, reset])
 
-  const passwordsMatch = password === repeatPassword
-
-  const { mutate } = useMutation({
-    mutationFn: signupApi,
-    onSuccess: data => {
-      console.log(data)
+  type Handler = SubmitHandler<SignUpData>
+  const handleSignUp: Handler = useCallback(
+    data => {
+      mutate(data)
     },
-  })
+    [mutate],
+  )
 
-  const handleSignUp = useCallback(() => {
-    if (!passwordsMatch) return
-    mutate({
-      nickname,
-      firstName,
-      lastName,
-      email,
-      password,
-    })
-  }, [passwordsMatch, nickname, firstName, lastName, email, password])
+  const handleLoginLinkClick = useCallback(
+    (event: React.MouseEvent) => {
+      event.preventDefault()
+      navigateToLogin()
+    },
+    [navigateToLogin],
+  )
 
   return (
     <Box
@@ -72,49 +61,74 @@ const SignUp = () => {
         <Stack spacing={1.5}>
           <TextField
             label="Nickname"
-            value={nickname}
-            onChange={handleChange(setNickname)}
+            {...register('nickname', {
+              required: 'Please, specify your nickname',
+              pattern: /^[_a-zA-Z].*$/,
+              minLength: 4,
+              maxLength: 25,
+            })}
+            error={Boolean(formState.errors.nickname)}
+            helperText={formState.errors.nickname?.message}
             fullWidth
           />
           <TextField
             label="First Name"
-            value={firstName}
-            onChange={handleChange(setFirstName)}
+            {...register('firstName', {
+              required: 'Please, specify your first name',
+              pattern: /^[a-zA-Z]+$/,
+              minLength: 2,
+              maxLength: 25,
+            })}
+            error={Boolean(formState.errors.firstName)}
+            helperText={formState.errors.firstName?.message}
             fullWidth
           />
           <TextField
             label="Last Name"
-            value={lastName}
-            onChange={handleChange(setLastName)}
+            {...register('lastName', {
+              required: 'Please, specify your second name',
+              pattern: /^[a-zA-Z]+$/,
+              minLength: 2,
+              maxLength: 25,
+            })}
+            error={Boolean(formState.errors.lastName)}
+            helperText={formState.errors.lastName?.message}
             fullWidth
           />
           <TextField
             label="Email"
             type="email"
-            value={email}
-            onChange={handleChange(setEmail)}
+            {...register('email', {
+              required: 'Please, specify your email',
+              pattern:
+                /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+            })}
+            error={Boolean(formState.errors.email)}
+            helperText={formState.errors.email?.message}
             fullWidth
           />
           <TextField
             label="Password"
             type="password"
-            value={password}
-            onChange={handleChange(setPassword)}
+            {...register('password', {
+              required: 'Please, specify your password',
+              minLength: 8,
+            })}
+            error={Boolean(formState.errors.password)}
+            helperText={formState.errors.password?.message}
             fullWidth
           />
-          <TextField
-            label="Repeat Password"
-            type="password"
-            value={repeatPassword}
-            onChange={handleChange(setRepeatPassword)}
-            fullWidth
-          />
-          <Button disabled={!passwordsMatch} onClick={handleSignUp}>
-            Sign Up
+          <Button onClick={handleSubmit(handleSignUp)}>Sign Up</Button>
+          <Button
+            component="a"
+            href={LOGIN_ROUTE}
+            onClick={handleLoginLinkClick}
+          >
+            Already have an account?
           </Button>
-          {!passwordsMatch && (
-            <Typography variant="body1" color="error">
-              Passwords don't match
+          {isError && (
+            <Typography variant="subtitle1" color="error">
+              {extractMessage(error)}
             </Typography>
           )}
         </Stack>
