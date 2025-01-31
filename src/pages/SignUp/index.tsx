@@ -4,10 +4,13 @@ import { SubmitHandler, useForm } from 'react-hook-form'
 import { SignUpData, useSignUpAPI } from './api'
 import { extractMessage } from '../../lib'
 import { useNavigate } from 'react-router'
+import { useRouteProtection } from '../../hooks/useRouteProtection'
 
 const LOGIN_ROUTE = '/auth/login'
 
 const SignUp = () => {
+  useRouteProtection({ authorized: false })
+
   const { register, handleSubmit, formState, reset } = useForm<SignUpData>()
 
   const { mutate, error, isError, isSuccess } = useSignUpAPI()

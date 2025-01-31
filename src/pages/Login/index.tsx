@@ -1,6 +1,13 @@
 import { Box, Button, Stack, TextField, Typography } from '@mui/material'
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useEffect } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
+import { useLoginAPI } from './api'
+import { useNavigate } from 'react-router'
+import { extractMessage } from '../../lib'
+import { useRouteProtection } from '../../hooks/useRouteProtection'
+
+const REDIRECT_ROUTE = '/'
+const SIGNUP_ROUTE = '/auth/sign-up'
 
 type LoginFormValues = {
   login: string
@@ -8,13 +15,35 @@ type LoginFormValues = {
 }
 
 const Login = () => {
+  useRouteProtection({ authorized: false })
+
   const { register, handleSubmit, formState, reset } =
     useForm<LoginFormValues>()
 
-  const handleLogin: SubmitHandler<LoginFormValues> = useCallback(data => {
-    // TODO:
-    console.log(data)
-  }, [])
+  const { mutate, error, isError, isSuccess } = useLoginAPI()
+
+  const navigate = useNavigate()
+  useEffect(() => {
+    if (!isSuccess) return
+    reset()
+    navigate(REDIRECT_ROUTE)
+  }, [isSuccess, navigate, reset])
+
+  type Handler = SubmitHandler<LoginFormValues>
+  const handleLogin: Handler = useCallback(
+    data => {
+      mutate(data)
+    },
+    [mutate],
+  )
+
+  const handleSignUpLinkClick = useCallback(
+    (event: React.MouseEvent) => {
+      event.preventDefault()
+      navigate(SIGNUP_ROUTE)
+    },
+    [navigate],
+  )
 
   return (
     <Box
@@ -45,6 +74,7 @@ const Login = () => {
           />
           <TextField
             label="Password"
+            type="password"
             {...register('password', {
               required: 'Please, provide your password',
             })}
@@ -53,6 +83,18 @@ const Login = () => {
             helperText={formState.errors.password?.message}
           />
           <Button onClick={handleSubmit(handleLogin)}>Login</Button>
+          <Button
+            component="a"
+            href={SIGNUP_ROUTE}
+            onClick={handleSignUpLinkClick}
+          >
+            Don't have an account?
+          </Button>
+          {isError && (
+            <Typography variant="subtitle1" color="error">
+              {extractMessage(error)}
+            </Typography>
+          )}
         </Stack>
       </Stack>
     </Box>

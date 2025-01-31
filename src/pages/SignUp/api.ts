@@ -1,7 +1,8 @@
 import { useMutation } from '@tanstack/react-query'
-import { ErrorAPI, intoErrorAPI, unknownErrorAPI } from '../../lib'
+import { ErrorAPI, intoErrorAPI, propagateErrorAPI } from '../../lib'
+import { client } from '../../http-client'
 
-const API_SIGNUP_ROUTE = '/api/auth/sign-up'
+const API_SIGNUP_ROUTE = '/auth/sign-up'
 
 export type SignUpData = {
   nickname: string
@@ -28,20 +29,13 @@ export const useSignUpAPI = () => {
   return useMutation<SignUpResponse, ErrorAPI, SignUpData>({
     mutationFn: async data => {
       try {
-        const response = await fetch(API_SIGNUP_ROUTE, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        })
-        const responseData = await response.json()
-        if (response.ok && isSignUpResponse(responseData)) {
+        const { data: responseData } = await client.post(API_SIGNUP_ROUTE, data)
+        if (isSignUpResponse(responseData)) {
           return responseData
         }
         throw intoErrorAPI(responseData)
-      } catch (error) {
-        throw intoErrorAPI(error)
+      } catch (error: any) {
+        throw propagateErrorAPI(error)
       }
     },
   })

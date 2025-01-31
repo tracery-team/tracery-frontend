@@ -1,6 +1,6 @@
 export type ErrorAPI = {
   message: string | string[]
-  error: string
+  error?: string
   statusCode: number
 }
 
@@ -15,13 +15,19 @@ export const isErrorAPI = (obj: any): obj is ErrorAPI => {
     obj !== null &&
     obj !== undefined &&
     (obj.message instanceof Array || typeof obj.message === 'string') &&
-    typeof obj.error === 'string' &&
+    (typeof obj.error === 'string' || typeof obj.error === 'undefined') &&
     typeof obj.statusCode === 'number'
   )
 }
 
 export const intoErrorAPI = (data: any) => {
   return isErrorAPI(data) ? data : unknownErrorAPI
+}
+
+export const propagateErrorAPI = (error: any) => {
+  return error?.response?.data
+    ? intoErrorAPI(error.response.data)
+    : intoErrorAPI(error)
 }
 
 export const extractMessage = ({ message }: ErrorAPI) => {
