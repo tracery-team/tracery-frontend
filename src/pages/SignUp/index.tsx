@@ -66,9 +66,18 @@ const SignUp = () => {
             label="Nickname"
             {...register('nickname', {
               required: 'Please, specify your nickname',
-              pattern: /^[_a-zA-Z].*$/,
-              minLength: 4,
-              maxLength: 25,
+              pattern: {
+                value: /^[_a-zA-Z][_a-zA-Z0-9]*$/,
+                message: 'Nickname does not match the pattern',
+              },
+              minLength: {
+                value: 4,
+                message: 'Nickname should be at least 4 characters long',
+              },
+              maxLength: {
+                value: 25,
+                message: 'Nickname should be at max 25 characters long',
+              },
             })}
             error={Boolean(formState.errors.nickname)}
             helperText={formState.errors.nickname?.message}
@@ -78,9 +87,18 @@ const SignUp = () => {
             label="First Name"
             {...register('firstName', {
               required: 'Please, specify your first name',
-              pattern: /^[a-zA-Z]+$/,
-              minLength: 2,
-              maxLength: 25,
+              pattern: {
+                value: /^[a-zA-Z]+$/,
+                message: 'Your first name should contain only letters',
+              },
+              minLength: {
+                value: 2,
+                message: 'Your first name should be at least 2 characters long',
+              },
+              maxLength: {
+                value: 25,
+                message: 'Your first name should be at max 25 characters long',
+              },
             })}
             error={Boolean(formState.errors.firstName)}
             helperText={formState.errors.firstName?.message}
@@ -88,11 +106,20 @@ const SignUp = () => {
           />
           <TextField
             label="Last Name"
-            {...register('lastName', {
-              required: 'Please, specify your second name',
-              pattern: /^[a-zA-Z]+$/,
-              minLength: 2,
-              maxLength: 25,
+            {...register('firstName', {
+              required: 'Please, specify your last name',
+              pattern: {
+                value: /^[a-zA-Z]+$/,
+                message: 'Your last name should contain only letters',
+              },
+              minLength: {
+                value: 2,
+                message: 'Your last name should be at least 2 characters long',
+              },
+              maxLength: {
+                value: 25,
+                message: 'Your last name should be at max 25 characters long',
+              },
             })}
             error={Boolean(formState.errors.lastName)}
             helperText={formState.errors.lastName?.message}
@@ -103,8 +130,11 @@ const SignUp = () => {
             type="email"
             {...register('email', {
               required: 'Please, specify your email',
-              pattern:
-                /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+              pattern: {
+                value:
+                  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+                message: 'This is not an email',
+              },
             })}
             error={Boolean(formState.errors.email)}
             helperText={formState.errors.email?.message}
@@ -115,7 +145,10 @@ const SignUp = () => {
             type="password"
             {...register('password', {
               required: 'Please, specify your password',
-              minLength: 8,
+              minLength: {
+                value: 8,
+                message: 'Your password should be at least 8 characters long',
+              },
             })}
             error={Boolean(formState.errors.password)}
             helperText={formState.errors.password?.message}
