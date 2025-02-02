@@ -149,7 +149,7 @@ const EventInfoPage = () => {
             boxShadow: 3,
             backgroundColor: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(5px)',
-            height: '400px', 
+            height: '400px',
           }}
         >
           <Typography
