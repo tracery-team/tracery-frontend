@@ -1,4 +1,4 @@
-import { memo, useState, useEffect, useMemo } from 'react'
+import { memo, useState, useEffect, useMemo, useCallback } from 'react'
 import {
   Button,
   Typography,
@@ -8,8 +8,10 @@ import {
   ListItem,
   ListItemText,
   Avatar,
+  Tooltip,
+  ListItemAvatar,
 } from '@mui/material'
-import { useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { useUserInfoAPI } from './api'
 import noUser from '../../assets/no-user.png'
 import { useRouteProtection } from '../../hooks/useRouteProtection'
@@ -65,6 +67,11 @@ const UserProfilePage = () => {
     }
   }, [])
 
+  const navigate = useNavigate()
+  const gotoUserDetails = useCallback((userId: number) => {
+    navigate(`/info/user/${userId}`)
+  }, [])
+
   return (
     <Box
       sx={{
@@ -78,7 +85,6 @@ const UserProfilePage = () => {
         overflow: 'hidden',
       }}
     >
-      {/* Grid Background */}
       <Box
         sx={{
           position: 'absolute',
@@ -105,7 +111,6 @@ const UserProfilePage = () => {
         ))}
       </Box>
 
-      {/* Profile Header */}
       <Paper
         sx={{
           width: '90%',
@@ -122,7 +127,7 @@ const UserProfilePage = () => {
           backdropFilter: 'blur(5px)',
         }}
       >
-        {data && (
+        {data && profileInfo?.id !== data?.id && (
           <Button
             onClick={() =>
               isFriend ? removeFriend(data.id) : addFriend(data.id)
@@ -153,7 +158,6 @@ const UserProfilePage = () => {
         )}
       </Paper>
 
-      {/* Main Content */}
       <Box
         sx={{
           display: 'flex',
@@ -163,7 +167,6 @@ const UserProfilePage = () => {
           maxWidth: '1000px',
         }}
       >
-        {/* User's Events Section */}
         <Paper
           sx={{
             flex: 2,
@@ -187,7 +190,6 @@ const UserProfilePage = () => {
           </List>
         </Paper>
 
-        {/* User's Friends Section */}
         <Paper
           sx={{
             flex: 1,
@@ -207,7 +209,17 @@ const UserProfilePage = () => {
             <List>
               {data.friends.map((friend, index) => (
                 <ListItem key={index}>
-                  <Avatar src={noUser} sx={{ marginRight: 2 }} />
+                  <ListItemAvatar>
+                    <Tooltip title="See user's profile">
+                      <Avatar
+                        sx={{ cursor: 'pointer' }}
+                        onClick={() => gotoUserDetails(friend.id)}
+                        alt="User Icon"
+                        src={noUser}
+                      />
+                    </Tooltip>
+                  </ListItemAvatar>
+
                   <ListItemText
                     primary={friend.nickname}
                     secondary={`${friend.firstName} ${friend.lastName}`}
