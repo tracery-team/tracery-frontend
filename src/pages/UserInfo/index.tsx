@@ -147,19 +147,19 @@ const UserProfilePage = () => {
           flexDirection: 'row',
           gap: 3,
           width: '90%',
-          maxWidth: '1000px', 
+          maxWidth: '1000px',
         }}
       >
         {/* User's Events Section */}
         <Paper
           sx={{
-            flex: 2, 
+            flex: 2,
             padding: 4,
             borderRadius: 3,
             boxShadow: 3,
             backgroundColor: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(5px)',
-            height: '400px', 
+            height: '400px',
           }}
         >
           <Typography variant="h5" fontWeight="bold" gutterBottom>
@@ -177,13 +177,13 @@ const UserProfilePage = () => {
         {/* User's Friends Section */}
         <Paper
           sx={{
-            flex: 1, 
+            flex: 1,
             padding: 4,
             borderRadius: 3,
             boxShadow: 3,
             backgroundColor: 'rgba(241, 241, 241, 0.8)',
             backdropFilter: 'blur(5px)',
-            maxHeight: '400px', 
+            maxHeight: '400px',
             overflowY: 'auto',
           }}
         >

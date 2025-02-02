@@ -15,7 +15,12 @@ import {
 } from '@mui/material'
 import React, { memo, useCallback, useMemo, useState } from 'react'
 import SearchIcon from '@mui/icons-material/Search'
-import { usePotentialFriendSearchAPI, useProfileInfoAPI } from './api'
+import {
+  useAddFriendAPI,
+  usePotentialFriendSearchAPI,
+  useProfileInfoAPI,
+  useRemoveFriendAPI,
+} from './api'
 import noUser from '../../assets/no-user.png'
 import useDebounce from '../../hooks/useDebounce'
 
@@ -54,6 +59,9 @@ const UserFriends = () => {
     }
     return [already, yet]
   }, [data, friendIDs, profileInfo])
+
+  const { mutate: addFriend } = useAddFriendAPI()
+  const { mutate: removeFriend } = useRemoveFriendAPI()
 
   return (
     <Paper
@@ -117,7 +125,9 @@ const UserFriends = () => {
                   secondary={`${user.firstName} ${user.lastName}`}
                 />
                 <ListItemSecondaryAction>
-                  <Button color="error">Remove</Button>
+                  <Button color="error" onClick={() => removeFriend(user.id)}>
+                    Remove
+                  </Button>
                 </ListItemSecondaryAction>
               </ListItem>
             ))}
@@ -131,7 +141,7 @@ const UserFriends = () => {
                   secondary={`${user.firstName} ${user.lastName}`}
                 />
                 <ListItemSecondaryAction>
-                  <Button>Add</Button>
+                  <Button onClick={() => addFriend(user.id)}>Add</Button>
                 </ListItemSecondaryAction>
               </ListItem>
             ))}
