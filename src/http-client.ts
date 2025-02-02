@@ -15,3 +15,11 @@ export const registerJWT = (token: string) => {
 export const unregisterJWT = () => {
   delete client.defaults.headers.common['Authorization']
 }
+
+const JWT_LOCALSTORAGE_KEY = 'tracery_jwt_token'
+
+;(() => {
+  const maybeToken = window.localStorage.getItem(JWT_LOCALSTORAGE_KEY)
+  if (maybeToken === null) return
+  registerJWT(maybeToken)
+})()

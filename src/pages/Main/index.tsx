@@ -1,14 +1,36 @@
 import { memo } from 'react'
-import { useJWT } from '../../hooks/useJWT'
 import { useRouteProtection } from '../../hooks/useRouteProtection'
-import { Button } from '@mui/material'
+import { Box } from '@mui/material'
+import Appbar from './Appbar'
+import UserInformation from './UserInformation'
+import UserFriends from './UserFriends'
 
 const Main = () => {
   useRouteProtection({ authorized: true })
 
-  const { setToken } = useJWT()
-
-  return <Button onClick={() => setToken(null)}>Log Out</Button>
+  return (
+    <Box
+      sx={{
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <Appbar />
+      <Box
+        sx={{
+          flex: 1,
+          display: 'grid',
+          gridTemplateColumns: '1fr 460px',
+          gridTemplateRows: '2fr 3fr',
+        }}
+      >
+        <UserInformation />
+        <UserFriends />
+      </Box>
+    </Box>
+  )
 }
 
 export default memo(Main)

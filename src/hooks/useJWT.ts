@@ -1,7 +1,7 @@
 import { registerJWT, unregisterJWT } from '../http-client'
 import { create } from 'zustand'
 
-const JWT_LOCALSTORAGE_KEY = 'tracery_jwt_token'
+export const JWT_LOCALSTORAGE_KEY = 'tracery_jwt_token'
 
 type TokenStorage = {
   token: string | null
