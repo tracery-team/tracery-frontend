@@ -163,6 +163,7 @@ export type EventResponse = {
   title: string
   description: string
   location: string
+  date: string
   users: ProfileInfoResponse[]
 }
 

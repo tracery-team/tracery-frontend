@@ -10,6 +10,8 @@ import {
   Avatar,
   Tooltip,
   ListItemAvatar,
+  Alert,
+  ListItemSecondaryAction,
 } from '@mui/material'
 import { useNavigate, useParams } from 'react-router'
 import { useUserInfoAPI } from './api'
@@ -32,12 +34,7 @@ const UserProfilePage = () => {
   const { data } = useUserInfoAPI(id)
 
   // TODO: replace with real events later
-  const mockEvents = [
-    { title: 'Music Festival 2025', date: 'Feb 1, 2025' },
-    { title: 'Tech Conference 2025', date: 'Mar 10, 2025' },
-    { title: 'Art Exhibition 2025', date: 'Apr 15, 2025' },
-    { title: 'Gaming Convention 2025', date: 'May 20, 2025' },
-  ]
+  const events = data?.events ?? []
 
   const isFriend = useMemo(() => {
     if (!profileInfo) return false
@@ -85,6 +82,13 @@ const UserProfilePage = () => {
         overflow: 'hidden',
       }}
     >
+      <Button
+        onClick={() => navigate('/')}
+        sx={{ position: 'fixed', top: 16, left: 16 }}
+        variant="outlined"
+      >
+        Back home
+      </Button>
       <Box
         sx={{
           position: 'absolute',
@@ -181,10 +185,23 @@ const UserProfilePage = () => {
           <Typography variant="h5" fontWeight="bold" gutterBottom>
             Events
           </Typography>
+          {events.length <= 0 && (
+            <Alert severity="info">
+              User does not participate in any events
+            </Alert>
+          )}
           <List>
-            {mockEvents.map((event, index) => (
+            {events.map((event, index) => (
               <ListItem key={index}>
-                <ListItemText primary={event.title} secondary={event.date} />
+                <ListItemText
+                  primary={event.title}
+                  secondary={new Date(event.date).toLocaleString()}
+                />
+                <ListItemSecondaryAction>
+                  <Button onClick={() => navigate(`/info/event/${event.id}`)}>
+                    Browse
+                  </Button>
+                </ListItemSecondaryAction>
               </ListItem>
             ))}
           </List>
