@@ -106,7 +106,7 @@ const SignUp = () => {
           />
           <TextField
             label="Last Name"
-            {...register('firstName', {
+            {...register('lastName', {
               required: 'Please, specify your last name',
               pattern: {
                 value: /^[a-zA-Z]+$/,
