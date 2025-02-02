@@ -10,14 +10,16 @@ import {
   Avatar,
 } from '@mui/material'
 
-const EventInfoPage = () => {
-  const mockEventData = {
-    title: 'Music Festival 2025 🎶',
-    description: `Join us for an unforgettable experience at the Music Festival 2025! 
-                  Enjoy live performances from top artists, delicious food stalls, and an amazing atmosphere.
-                  Don't miss out on the biggest music event of the year!`,
-    location: 'Central Park, New York City',
-    date: 'Saturday, February 1, 2025 - 6:00 PM',
+const UserProfilePage = () => {
+  const [isFriend, setIsFriend] = useState(false)
+  const [gridColors, setGridColors] = useState<string[]>([])
+
+  const mockUserData = {
+    avatarUrl: '/path/to/avatar.jpg',
+    nickname: 'CoolUser123',
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'johndoe@example.com',
   }
 
   const mockFriends = [
@@ -27,12 +29,12 @@ const EventInfoPage = () => {
     { name: 'Darth Vader', avatarUrl: '/path/to/darth-avatar.jpg' },
   ]
 
-  const [eventData] = useState(mockEventData)
-  const [gridColors, setGridColors] = useState<string[]>([])
-
-  const handleSubmit = () => {
-    console.log('Event Added:', eventData)
-  }
+  const mockEvents = [
+    { title: 'Music Festival 2025', date: 'Feb 1, 2025' },
+    { title: 'Tech Conference 2025', date: 'Mar 10, 2025' },
+    { title: 'Art Exhibition 2025', date: 'Apr 15, 2025' },
+    { title: 'Gaming Convention 2025', date: 'May 20, 2025' },
+  ]
 
   const getRandomColor = (rowIndex: number) => {
     const intensity = Math.min(1, rowIndex / 20)
@@ -66,7 +68,7 @@ const EventInfoPage = () => {
         overflow: 'hidden',
       }}
     >
-      {/* 🔹 Grid Background */}
+      {/* Grid Background */}
       <Box
         sx={{
           position: 'absolute',
@@ -93,7 +95,7 @@ const EventInfoPage = () => {
         ))}
       </Box>
 
-      {/* 🔹 Event Title Section */}
+      {/* Profile Header */}
       <Paper
         sx={{
           width: '90%',
@@ -102,48 +104,56 @@ const EventInfoPage = () => {
           borderRadius: 3,
           boxShadow: 3,
           backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          position: 'relative',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           marginBottom: 3,
           backdropFilter: 'blur(5px)',
-          position: 'relative',
         }}
       >
         <Button
-          onClick={handleSubmit}
+          onClick={() => setIsFriend(!isFriend)}
+          sx={{ position: 'absolute', top: 20, right: 30 }}
+          color={isFriend ? 'error' : 'primary'}
           variant="contained"
-          color="primary"
-          sx={{
-            position: 'absolute',
-            top: 20,
-            right: 30,
-          }}
         >
-          Add Event
+          {isFriend ? 'Remove Friend' : 'Add Friend'}
         </Button>
 
-        <Typography variant="h3" fontWeight="bold" color="primary">
-          {eventData.title}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          <Avatar
+            src={mockUserData.avatarUrl}
+            sx={{ width: 100, height: 100 }}
+          />
+          <Box>
+            <Typography variant="h4" fontWeight="bold">
+              {mockUserData.nickname}
+            </Typography>
+            <Typography variant="body1">
+              {mockUserData.firstName} {mockUserData.lastName}
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              {mockUserData.email}
+            </Typography>
+          </Box>
+        </Box>
       </Paper>
 
-      {/* 🔹 Main Content (Event Info + Friends List) */}
+      {/* Main Content */}
       <Box
         sx={{
           display: 'flex',
           flexDirection: 'row',
-          alignItems: 'flex-start',
-          justifyContent: 'center',
           gap: 3,
           width: '90%',
-          maxWidth: '1000px',
+          maxWidth: '1000px', 
         }}
       >
-        {/* 🔹 Event Details (Left Side) */}
+        {/* User's Events Section */}
         <Paper
           sx={{
-            flex: 2,
+            flex: 2, 
             padding: 4,
             borderRadius: 3,
             boxShadow: 3,
@@ -152,58 +162,37 @@ const EventInfoPage = () => {
             height: '400px', 
           }}
         >
-          <Typography
-            variant="h5"
-            fontWeight="bold"
-            color="secondary"
-            gutterBottom
-          >
-            Event Details
+          <Typography variant="h5" fontWeight="bold" gutterBottom>
+            Events
           </Typography>
-
-          <Typography variant="h6" sx={{ marginTop: 2 }}>
-            Description
-          </Typography>
-          <Typography variant="body1" sx={{ marginBottom: 3 }}>
-            {eventData.description}
-          </Typography>
-
-          <Typography variant="h6">Location</Typography>
-          <Typography variant="body1" sx={{ marginBottom: 3 }}>
-            📍 {eventData.location}
-          </Typography>
-
-          <Typography variant="h6">Date & Time</Typography>
-          <Typography variant="body1" sx={{ marginBottom: 3 }}>
-            📅 {eventData.date}
-          </Typography>
+          <List>
+            {mockEvents.map((event, index) => (
+              <ListItem key={index}>
+                <ListItemText primary={event.title} secondary={event.date} />
+              </ListItem>
+            ))}
+          </List>
         </Paper>
 
-        {/* 🔹 Friends Participating (Right Side) */}
+        {/* User's Friends Section */}
         <Paper
           sx={{
-            flex: 1,
+            flex: 1, 
             padding: 4,
             borderRadius: 3,
             boxShadow: 3,
             backgroundColor: 'rgba(241, 241, 241, 0.8)',
             backdropFilter: 'blur(5px)',
-            maxHeight: '400px',
+            maxHeight: '400px', 
             overflowY: 'auto',
           }}
         >
-          <Typography
-            variant="h5"
-            fontWeight="bold"
-            color="primary"
-            gutterBottom
-          >
-            Friends Participating
+          <Typography variant="h5" fontWeight="bold" gutterBottom>
+            Friends
           </Typography>
-
           <List>
             {mockFriends.map((friend, index) => (
-              <ListItem key={index} sx={{ padding: '10px 0' }}>
+              <ListItem key={index}>
                 <Avatar src={friend.avatarUrl} sx={{ marginRight: 2 }} />
                 <ListItemText primary={friend.name} />
               </ListItem>
@@ -215,4 +204,4 @@ const EventInfoPage = () => {
   )
 }
 
-export default memo(EventInfoPage)
+export default memo(UserProfilePage)

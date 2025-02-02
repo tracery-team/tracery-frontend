@@ -5,6 +5,7 @@ import Main from './pages/Main'
 import Login from './pages/Login'
 import SignUp from './pages/SignUp'
 import EventInfo from './pages/EventInfo'
+import UserInfo from './pages/UserInfo'
 import { css, Global } from '@emotion/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
@@ -21,6 +22,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="sign-up" element={<SignUp />} />
           </Route>
           <Route path="event-info" element={<EventInfo />} />
+          <Route path="user-info" element={<UserInfo />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
