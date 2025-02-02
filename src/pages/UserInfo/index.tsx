@@ -1,4 +1,4 @@
-import { memo, useState, useEffect } from 'react'
+import { memo, useState, useEffect, useMemo } from 'react'
 import {
   Button,
   Typography,
@@ -9,26 +9,27 @@ import {
   ListItemText,
   Avatar,
 } from '@mui/material'
+import { useParams } from 'react-router'
+import { useUserInfoAPI } from './api'
+import noUser from '../../assets/no-user.png'
+import { useRouteProtection } from '../../hooks/useRouteProtection'
+import {
+  useAddFriendAPI,
+  useProfileInfoAPI,
+  useRemoveFriendAPI,
+} from '../Main/api'
 
 const UserProfilePage = () => {
-  const [isFriend, setIsFriend] = useState(false)
-  const [gridColors, setGridColors] = useState<string[]>([])
+  useRouteProtection({ authorized: true })
 
-  const mockUserData = {
-    avatarUrl: '/path/to/avatar.jpg',
-    nickname: 'CoolUser123',
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'johndoe@example.com',
-  }
+  const { data: profileInfo } = useProfileInfoAPI()
+  const { mutate: addFriend } = useAddFriendAPI()
+  const { mutate: removeFriend } = useRemoveFriendAPI()
 
-  const mockFriends = [
-    { name: 'Alice Johnson', avatarUrl: '/path/to/alice-avatar.jpg' },
-    { name: 'Bob Smith', avatarUrl: '/path/to/bob-avatar.jpg' },
-    { name: 'Charlie Davis', avatarUrl: '/path/to/charlie-avatar.jpg' },
-    { name: 'Darth Vader', avatarUrl: '/path/to/darth-avatar.jpg' },
-  ]
+  const { id } = useParams()
+  const { data } = useUserInfoAPI(id)
 
+  // TODO: replace with real events later
   const mockEvents = [
     { title: 'Music Festival 2025', date: 'Feb 1, 2025' },
     { title: 'Tech Conference 2025', date: 'Mar 10, 2025' },
@@ -36,11 +37,20 @@ const UserProfilePage = () => {
     { title: 'Gaming Convention 2025', date: 'May 20, 2025' },
   ]
 
+  const isFriend = useMemo(() => {
+    if (!profileInfo) return false
+    for (const { id: friendId } of profileInfo.friends) {
+      if (friendId === data?.id) return true
+    }
+    return false
+  }, [profileInfo, data])
+
+  // generating background
+  const [gridColors, setGridColors] = useState<string[]>([])
   const getRandomColor = (rowIndex: number) => {
     const intensity = Math.min(1, rowIndex / 20)
     return `rgba(169, 169, 190, ${Math.random() * intensity * 0.4 + 0.05})`
   }
-
   useEffect(() => {
     const savedColors = localStorage.getItem('gridColors')
     if (savedColors) {
@@ -112,32 +122,35 @@ const UserProfilePage = () => {
           backdropFilter: 'blur(5px)',
         }}
       >
-        <Button
-          onClick={() => setIsFriend(!isFriend)}
-          sx={{ position: 'absolute', top: 20, right: 30 }}
-          color={isFriend ? 'error' : 'primary'}
-          variant="contained"
-        >
-          {isFriend ? 'Remove Friend' : 'Add Friend'}
-        </Button>
+        {data && (
+          <Button
+            onClick={() =>
+              isFriend ? removeFriend(data.id) : addFriend(data.id)
+            }
+            sx={{ position: 'absolute', top: 20, right: 30 }}
+            color={isFriend ? 'error' : 'primary'}
+            variant="contained"
+          >
+            {isFriend ? 'Remove Friend' : 'Add Friend'}
+          </Button>
+        )}
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-          <Avatar
-            src={mockUserData.avatarUrl}
-            sx={{ width: 100, height: 100 }}
-          />
-          <Box>
-            <Typography variant="h4" fontWeight="bold">
-              {mockUserData.nickname}
-            </Typography>
-            <Typography variant="body1">
-              {mockUserData.firstName} {mockUserData.lastName}
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-              {mockUserData.email}
-            </Typography>
+        {data && (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+            <Avatar src={noUser} sx={{ width: 100, height: 100 }} />
+            <Box>
+              <Typography variant="h4" fontWeight="bold">
+                {data.nickname}
+              </Typography>
+              <Typography variant="body1">
+                {data.firstName} {data.lastName}
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                {data.email}
+              </Typography>
+            </Box>
           </Box>
-        </Box>
+        )}
       </Paper>
 
       {/* Main Content */}
@@ -190,14 +203,19 @@ const UserProfilePage = () => {
           <Typography variant="h5" fontWeight="bold" gutterBottom>
             Friends
           </Typography>
-          <List>
-            {mockFriends.map((friend, index) => (
-              <ListItem key={index}>
-                <Avatar src={friend.avatarUrl} sx={{ marginRight: 2 }} />
-                <ListItemText primary={friend.name} />
-              </ListItem>
-            ))}
-          </List>
+          {data && (
+            <List>
+              {data.friends.map((friend, index) => (
+                <ListItem key={index}>
+                  <Avatar src={noUser} sx={{ marginRight: 2 }} />
+                  <ListItemText
+                    primary={friend.nickname}
+                    secondary={`${friend.firstName} ${friend.lastName}`}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          )}
         </Paper>
       </Box>
     </Box>

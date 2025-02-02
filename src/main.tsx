@@ -21,8 +21,10 @@ createRoot(document.getElementById('root')!).render(
             <Route path="login" element={<Login />} />
             <Route path="sign-up" element={<SignUp />} />
           </Route>
-          <Route path="event-info" element={<EventInfo />} />
-          <Route path="user-info" element={<UserInfo />} />
+          <Route path="info">
+            <Route path="event/:id" element={<EventInfo />} />
+            <Route path="user/:id" element={<UserInfo />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>

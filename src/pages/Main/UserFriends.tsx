@@ -12,6 +12,7 @@ import {
   ListItemText,
   ListItemSecondaryAction,
   Button,
+  Tooltip,
 } from '@mui/material'
 import React, { memo, useCallback, useMemo, useState } from 'react'
 import SearchIcon from '@mui/icons-material/Search'
@@ -23,6 +24,7 @@ import {
 } from './api'
 import noUser from '../../assets/no-user.png'
 import useDebounce from '../../hooks/useDebounce'
+import { useNavigate } from 'react-router'
 
 const UserFriends = () => {
   const [search, setSearch] = useState('')
@@ -62,6 +64,11 @@ const UserFriends = () => {
 
   const { mutate: addFriend } = useAddFriendAPI()
   const { mutate: removeFriend } = useRemoveFriendAPI()
+
+  const navigate = useNavigate()
+  const gotoUserDetails = useCallback((userId: number) => {
+    navigate(`/info/user/${userId}`)
+  }, [])
 
   return (
     <Paper
@@ -118,7 +125,14 @@ const UserFriends = () => {
             {friends.map((user, index) => (
               <ListItem key={index}>
                 <ListItemAvatar>
-                  <Avatar alt="User Icon" src={noUser} />
+                  <Tooltip title="See user's profile">
+                    <Avatar
+                      sx={{ cursor: 'pointer' }}
+                      onClick={() => gotoUserDetails(user.id)}
+                      alt="User Icon"
+                      src={noUser}
+                    />
+                  </Tooltip>
                 </ListItemAvatar>
                 <ListItemText
                   primary={user.nickname}
@@ -134,7 +148,14 @@ const UserFriends = () => {
             {potential.map((user, index) => (
               <ListItem key={index}>
                 <ListItemAvatar>
-                  <Avatar alt="User Icon" src={noUser} />
+                  <Tooltip title="See user's profile">
+                    <Avatar
+                      sx={{ cursor: 'pointer' }}
+                      onClick={() => gotoUserDetails(user.id)}
+                      alt="User Icon"
+                      src={noUser}
+                    />
+                  </Tooltip>
                 </ListItemAvatar>
                 <ListItemText
                   primary={user.nickname}

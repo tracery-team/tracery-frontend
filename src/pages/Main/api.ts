@@ -114,6 +114,9 @@ export const useAddFriendAPI = () => {
       queryClient.invalidateQueries({
         queryKey: ['profileInfo'],
       })
+      queryClient.invalidateQueries({
+        queryKey: ['userInfo'],
+      })
     },
   })
 }
@@ -140,6 +143,9 @@ export const useRemoveFriendAPI = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['profileInfo'],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['userInfo'],
       })
     },
   })
