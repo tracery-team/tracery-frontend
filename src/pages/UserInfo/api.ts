@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { client } from '../../http-client'
 import { ErrorAPI, intoErrorAPI, propagateErrorAPI } from '../../lib'
+import { EventResponse } from '../Main/api'
 
 const USER_INFO_ROUTE = '/user/info'
 
@@ -11,6 +12,7 @@ export type UserInfoResponse = {
   lastName: string
   email: string
   friends: Omit<UserInfoResponse, 'friends'>[]
+  events: EventResponse[]
 }
 
 const isUserInfoResponse = (obj: any): obj is UserInfoResponse => {

@@ -1,4 +1,4 @@
-import { memo, useState, useEffect } from 'react'
+import { memo, useState, useEffect, useMemo, useCallback } from 'react'
 import {
   Button,
   Typography,
@@ -8,37 +8,52 @@ import {
   ListItem,
   ListItemText,
   Avatar,
+  ListItemAvatar,
+  Tooltip,
+  Alert,
 } from '@mui/material'
+import { useNavigate, useParams } from 'react-router'
+import { useEventInfoAPI } from './api'
+import {
+  useAddEventAPI,
+  useProfileInfoAPI,
+  useRemoveEventAPI,
+} from '../Main/api'
+import noUser from '../../assets/no-user.png'
 
 const EventInfoPage = () => {
-  const mockEventData = {
-    title: 'Music Festival 2025 🎶',
-    description: `Join us for an unforgettable experience at the Music Festival 2025! 
-                  Enjoy live performances from top artists, delicious food stalls, and an amazing atmosphere.
-                  Don't miss out on the biggest music event of the year!`,
-    location: 'Central Park, New York City',
-    date: 'Saturday, February 1, 2025 - 6:00 PM',
-  }
+  const { data: profileInfo } = useProfileInfoAPI()
+  const { mutate: addEvent } = useAddEventAPI()
+  const { mutate: removeEvent } = useRemoveEventAPI()
 
-  const mockFriends = [
-    { name: 'Alice Johnson', avatarUrl: '/path/to/alice-avatar.jpg' },
-    { name: 'Bob Smith', avatarUrl: '/path/to/bob-avatar.jpg' },
-    { name: 'Charlie Davis', avatarUrl: '/path/to/charlie-avatar.jpg' },
-    { name: 'Darth Vader', avatarUrl: '/path/to/darth-avatar.jpg' },
-  ]
+  const myEventIDs = useMemo(() => {
+    if (!profileInfo) return []
+    return profileInfo.events.map(({ id }) => id)
+  }, [profileInfo])
+  const myFriendIDs = useMemo(() => {
+    if (!profileInfo) return []
+    return profileInfo.friends.map(({ id }) => id)
+  }, [profileInfo])
 
-  const [eventData] = useState(mockEventData)
+  const { id } = useParams()
+  const { data: eventData } = useEventInfoAPI(id)
+
+  const friendsParticipating = useMemo(() => {
+    if (!eventData) return []
+    return eventData.users.filter(({ id }) => myFriendIDs.includes(id))
+  }, [eventData, myFriendIDs])
+
+  const meParticipating = useMemo(() => {
+    if (!eventData) return false
+    return myEventIDs.includes(eventData?.id)
+  }, [eventData, myEventIDs])
+
+  // Generating background
   const [gridColors, setGridColors] = useState<string[]>([])
-
-  const handleSubmit = () => {
-    console.log('Event Added:', eventData)
-  }
-
   const getRandomColor = (rowIndex: number) => {
     const intensity = Math.min(1, rowIndex / 20)
     return `rgba(169, 169, 190, ${Math.random() * intensity * 0.4 + 0.05})`
   }
-
   useEffect(() => {
     const savedColors = localStorage.getItem('gridColors')
     if (savedColors) {
@@ -51,6 +66,11 @@ const EventInfoPage = () => {
       setGridColors(newGridColors)
       localStorage.setItem('gridColors', JSON.stringify(newGridColors))
     }
+  }, [])
+
+  const navigate = useNavigate()
+  const gotoUserDetails = useCallback((userId: number) => {
+    navigate(`/info/user/${userId}`)
   }, [])
 
   return (
@@ -66,6 +86,14 @@ const EventInfoPage = () => {
         overflow: 'hidden',
       }}
     >
+      <Button
+        onClick={() => navigate('/')}
+        sx={{ position: 'fixed', top: 16, left: 16 }}
+        variant="outlined"
+      >
+        Back home
+      </Button>
+
       {/* 🔹 Grid Background */}
       <Box
         sx={{
@@ -110,22 +138,30 @@ const EventInfoPage = () => {
           position: 'relative',
         }}
       >
-        <Button
-          onClick={handleSubmit}
-          variant="contained"
-          color="primary"
-          sx={{
-            position: 'absolute',
-            top: 20,
-            right: 30,
-          }}
-        >
-          Add Event
-        </Button>
+        {eventData && (
+          <Button
+            onClick={() =>
+              meParticipating
+                ? removeEvent(eventData.id)
+                : addEvent(eventData.id)
+            }
+            variant="contained"
+            color="primary"
+            sx={{
+              position: 'absolute',
+              top: 20,
+              right: 30,
+            }}
+          >
+            {meParticipating ? 'Remove Event' : 'Add Event'}
+          </Button>
+        )}
 
-        <Typography variant="h3" fontWeight="bold" color="primary">
-          {eventData.title}
-        </Typography>
+        {eventData && (
+          <Typography variant="h3" fontWeight="bold" color="primary">
+            {eventData.title}
+          </Typography>
+        )}
       </Paper>
 
       {/* 🔹 Main Content (Event Info + Friends List) */}
@@ -141,43 +177,45 @@ const EventInfoPage = () => {
         }}
       >
         {/* 🔹 Event Details (Left Side) */}
-        <Paper
-          sx={{
-            flex: 2,
-            padding: 4,
-            borderRadius: 3,
-            boxShadow: 3,
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(5px)',
-            height: '400px',
-          }}
-        >
-          <Typography
-            variant="h5"
-            fontWeight="bold"
-            color="secondary"
-            gutterBottom
+        {eventData && (
+          <Paper
+            sx={{
+              flex: 2,
+              padding: 4,
+              borderRadius: 3,
+              boxShadow: 3,
+              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(5px)',
+              height: '400px',
+            }}
           >
-            Event Details
-          </Typography>
+            <Typography
+              variant="h5"
+              fontWeight="bold"
+              color="secondary"
+              gutterBottom
+            >
+              Event Details
+            </Typography>
 
-          <Typography variant="h6" sx={{ marginTop: 2 }}>
-            Description
-          </Typography>
-          <Typography variant="body1" sx={{ marginBottom: 3 }}>
-            {eventData.description}
-          </Typography>
+            <Typography variant="h6" sx={{ marginTop: 2 }}>
+              Description
+            </Typography>
+            <Typography variant="body1" sx={{ marginBottom: 3 }}>
+              {eventData.description}
+            </Typography>
 
-          <Typography variant="h6">Location</Typography>
-          <Typography variant="body1" sx={{ marginBottom: 3 }}>
-            📍 {eventData.location}
-          </Typography>
+            <Typography variant="h6">Location</Typography>
+            <Typography variant="body1" sx={{ marginBottom: 3 }}>
+              📍 {eventData.location}
+            </Typography>
 
-          <Typography variant="h6">Date & Time</Typography>
-          <Typography variant="body1" sx={{ marginBottom: 3 }}>
-            📅 {eventData.date}
-          </Typography>
-        </Paper>
+            <Typography variant="h6">Date & Time</Typography>
+            <Typography variant="body1" sx={{ marginBottom: 3 }}>
+              📅 {eventData.date}
+            </Typography>
+          </Paper>
+        )}
 
         {/* 🔹 Friends Participating (Right Side) */}
         <Paper
@@ -200,12 +238,29 @@ const EventInfoPage = () => {
           >
             Friends Participating
           </Typography>
-
+          {friendsParticipating.length <= 0 && (
+            <Alert severity="info">
+              No friends participating in this event
+            </Alert>
+          )}
           <List>
-            {mockFriends.map((friend, index) => (
-              <ListItem key={index} sx={{ padding: '10px 0' }}>
-                <Avatar src={friend.avatarUrl} sx={{ marginRight: 2 }} />
-                <ListItemText primary={friend.name} />
+            {friendsParticipating.map((friend, index) => (
+              <ListItem key={index}>
+                <ListItemAvatar>
+                  <Tooltip title="See user's profile">
+                    <Avatar
+                      sx={{ cursor: 'pointer' }}
+                      onClick={() => gotoUserDetails(friend.id)}
+                      alt="User Icon"
+                      src={noUser}
+                    />
+                  </Tooltip>
+                </ListItemAvatar>
+
+                <ListItemText
+                  primary={friend.nickname}
+                  secondary={`${friend.firstName} ${friend.lastName}`}
+                />
               </ListItem>
             ))}
           </List>
