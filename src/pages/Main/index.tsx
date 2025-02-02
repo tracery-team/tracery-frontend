@@ -4,6 +4,7 @@ import { Box } from '@mui/material'
 import Appbar from './Appbar'
 import UserInformation from './UserInformation'
 import UserFriends from './UserFriends'
+import UserEvents from './UserEvents'
 
 const Main = () => {
   useRouteProtection({ authorized: true })
@@ -28,6 +29,7 @@ const Main = () => {
       >
         <UserInformation />
         <UserFriends />
+        <UserEvents />
       </Box>
     </Box>
   )
